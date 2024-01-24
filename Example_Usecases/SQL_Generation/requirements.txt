@@ -6,3 +6,5 @@ evaluate==0.4.1
 bitsandbytes==0.42.0
 flash-attn
 huggingface_hub
+flask
+streamlit
