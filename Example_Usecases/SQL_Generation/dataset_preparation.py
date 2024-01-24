@@ -15,14 +15,15 @@ def create_conversational_format(sample):
 
 def preprocess_spider_dataset():
     # Load the Spider dataset
+    print("Load the Spider dataset")
     dataset = load_dataset("spider")
-
-    # Convert the dataset to a conversational format
-    dataset = dataset.map(create_conversational_format, remove_columns=dataset.column_names)
+    print("dataset",type(dataset),dataset)
+    
     # Using map to apply the conversational format conversion
     dataset = dataset.map(create_conversational_format, 
                           remove_columns=['db_id', 'query', 'question', 'query_toks', 'query_toks_no_value', 'question_toks']) # Remove the original columns if they are no longer needed
 
+    print("dataset after",type(dataset),dataset)
     # Split the dataset into training and testing (customize split as needed)
     train_test_split = dataset["train"].train_test_split(test_size=0.1)
     return train_test_split
