@@ -29,7 +29,16 @@ Ensure you have Python installed on your system and the necessary hardware (pref
 
 ## Usage
 To use this repository, clone it, install the requirements, and follow the sequential steps outlined above. Each script is well-documented with comments to guide you through the process.
+## Docker 
+Build and Run the Docker Container
+To build and run the Docker container, use the following commands:
 
+bash
+Copy code
+```
+docker build -t my-llm-project .
+docker run -p 4000:80 my-llm-project
+```
 ## Contributing
 Contributions to this project are welcome. Please ensure that any pull requests are well-documented and tested.
 
