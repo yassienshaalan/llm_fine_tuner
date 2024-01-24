@@ -1,11 +1,10 @@
-# model_training.py
-
 from transformers import AutoModelForSeq2SeqLM, TrainingArguments, Trainer
-from dataset_preparation import prepare_nl2sql_dataset
 
-def train_model():
-    model = AutoModelForSeq2SeqLM.from_pretrained("t5-base")  # or another suitable model
+def train_model(train_dataset):
+    # Load the model, T5 or any other suitable Seq2Seq model
+    model = AutoModelForSeq2SeqLM.from_pretrained("t5-base")
 
+    # Define training arguments
     training_args = TrainingArguments(
         output_dir="./model_output",
         num_train_epochs=3,
@@ -15,16 +14,22 @@ def train_model():
         evaluation_strategy="epoch"
     )
 
-    dataset = prepare_nl2sql_dataset()
-
+    # Initialize the Trainer
     trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset=dataset["train"],
-        eval_dataset=dataset["validation"]
+        train_dataset=train_dataset,
+        # If you have a separate validation dataset, load it here
+        # eval_dataset=validation_dataset
     )
 
+    # Start training
     trainer.train()
 
-if __name__ == "__main__":
-    train_model()
+    # Save the trained model
+    model.save_pretrained("./model_output")
+
+    # Return path to the saved model
+    return "./model_output"
+
+

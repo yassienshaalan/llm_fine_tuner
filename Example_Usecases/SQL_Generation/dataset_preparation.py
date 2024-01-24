@@ -1,31 +1,34 @@
-# dataset_preparation.py
-
 from datasets import load_dataset
-import os
 
-def prepare_nl2sql_dataset(dataset_name="spider", local_path=None):
+def create_conversational_format(sample):
     """
-    Prepares the NL2SQL dataset.
-
-    Parameters:
-    dataset_name (str): Name of the dataset to load. Default is 'spider'.
-    local_path (str): Local path to the dataset. If None, the dataset will be downloaded.
-
-    Returns:
-    Loaded or downloaded dataset.
+    Converts dataset samples to a conversational format.
     """
+    system_message = "You are a text to SQL query translator. Users will ask you questions in English and you will generate a SQL query based on the provided SCHEMA.\nSCHEMA:\n"
+    return {
+        "messages": [
+            {"role": "system", "content": system_message + sample["db_id"]},
+            {"role": "user", "content": sample["question"]},
+            {"role": "assistant", "content": sample["query"]}
+        ]
+    }
 
-    if local_path and os.path.exists(local_path):
-        print(f"Loading dataset from local path: {local_path}")
-        dataset = load_dataset('json', data_files=local_path)
-    else:
-        print(f"Downloading and loading dataset: {dataset_name}")
-        dataset = load_dataset(dataset_name)
+def preprocess_spider_dataset():
+    # Load the Spider dataset
+    dataset = load_dataset("spider")
 
-    # Add any necessary preprocessing steps here
-    return dataset
+    # Convert the dataset to a conversational format
+    dataset = dataset.map(create_conversational_format, remove_columns=dataset.column_names)
+    # Using map to apply the conversational format conversion
+    dataset = dataset.map(create_conversational_format, 
+                          remove_columns=['db_id', 'query', 'question', 'query_toks', 'query_toks_no_value', 'question_toks']) # Remove the original columns if they are no longer needed
+
+    # Split the dataset into training and testing (customize split as needed)
+    train_test_split = dataset["train"].train_test_split(test_size=0.1)
+    return train_test_split
 
 if __name__ == "__main__":
-    # Example usage: Load 'spider' dataset from local path or download if not available
-    dataset = prepare_nl2sql_dataset(local_path="./data/spider")
-    # Additional code to process the dataset
+    processed_dataset = preprocess_spider_dataset()
+    # Example: Save to disk or further processing
+    processed_dataset["train"].to_json("train_dataset.json", orient="records")
+    processed_dataset["test"].to_json("test_dataset.json", orient="records")
